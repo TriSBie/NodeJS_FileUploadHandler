@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NodeJS File Uploader</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1.5rem;
+        background-color: #333;
+        color: whitesmoke;
+      }
+
+      input,
+      button {
+        font: inherit;
+        width: max-content;
+      }
+
+      form {
+        display: flex;
+        flex-flow: column nowrap;
+        gap: 1.5rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Node.JS File Uploader</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" id="myFiles" accept="image/*" multiple />
+      <button type="submit">Submit</button>
+    </form>
+    <h2></h2>
+    <h3></h3>
+    <script>
+      const form = document.getElementById("uploadForm");
+      const sendFiles = async () => {
+        //Object FileList >> return lists of file item
+        const myFiles = document.getElementById("myFiles").files;
+        console.log(myFiles);
+        // using formData provides construct a set of key/value pairs representing form fields and their values.
+        // which can be using the fetch();
+        const formData = new FormData();
+        /**  FormData interface provides a way to construct a set of key/value pairs
+         *   representing form fields and their values
+         *
+         *
+         * */
+
+        Object.keys(myFiles).forEach((key) => {
+          //formData.append(key, value) - appends new value onto an exsiting key inside.
+          //use FileList.item(key) can find the select item
+          formData.append(myFiles.item(key).name, myFiles.item(key));
+        });
+
+        const response = await fetch("http://localhost:5000/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const json = await response.json();
+        console.log(json);
+
+        const h2 = document.querySelector("h2");
+        // optional Chaining - instead of causing an error if a reference is nullish ->
+        // the expression (?.) return a value of undefine
+        h2.textContent = `Status: ${json?.message}`;
+
+        const h3 = document.querySelector("h3");
+        h3.textContent = `${json?.message}`;
+      };
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        sendFiles();
+      });
+    </script>
+  </body>
+</html>
